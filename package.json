@@ -1,0 +1,57 @@
+{
+  "name": "armarket",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "axios": "^0.21.0",
+    "date-fns": "^2.16.1",
+    "electron-packager": "^15.2.0",
+    "materialize-css": "^1.0.0-rc.2",
+    "net": "^1.0.2",
+    "password-hash": "^1.2.2",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-materialize": "^3.9.3",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.1",
+    "react-to-print": "^2.12.0",
+    "receiptline": "^1.1.1",
+    "recharts": "^1.8.5",
+    "recoil": "^0.1.2",
+    "web-vitals": "^0.2.4"
+  },
+  "scripts": {
+    "dev": "electron-webpack dev",
+    "start": "react-scripts start",
+    "react-start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "compile": "electron-webpack",
+    "eject": "react-scripts eject",
+    "electron": "electron ."
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "keywords": [
+    "react"
+  ]
+}
