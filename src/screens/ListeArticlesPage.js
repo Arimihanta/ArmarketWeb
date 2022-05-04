@@ -1,5 +1,5 @@
 import React,{useState, useEffect} from 'react'
-import {Row, Col,Table, Icon} from 'react-materialize'
+import {Row, Col,Table} from 'react-materialize'
 import {SearchInputText} from "./../components/SearchInputText"
 import { Button } from "../components/Button"
 import edit_16px from './../components/img/edit_16px.png'
@@ -9,29 +9,34 @@ import {getStocks,getStockParReference} from '../services/stock'
 import {LoadDataPage} from './LoadDataPage'
 import {NouveauArticle} from './NouveauArticle'
 import {ModifierArticle} from './ModifierArticle'
+import {SupprimerArticle} from './SupprimerArticle'
 
 import {
-    useRecoilState,
-    useRecoilValue,
+    useRecoilState
 } from 'recoil';
 import {openDialogNouveauArticle, 
     openDialogModifierArticle,
+    openDialogSupprimerArticle,
     listeArticles, 
     listeCategoriesArticles,
-    listeSousCategoriesArticles,
     propsArticle} from '../global/atom'
 import { colors } from "../global/colors"
 import '../global/lib'
-const { primary, warning, gray } = colors
+const {  gray } = colors
 export const ListeArticlesPage=()=>{
     const [isLoad, setLoad]=useState(true)
     //list of articles from database
     const [liste_articles, setListeArticles]=useRecoilState(listeArticles)
     const [liste_categories_articles, setListeCategoriesArticles]=useRecoilState(listeCategoriesArticles)
+    console.log(liste_categories_articles)
     //list of articles filtered
     const [liste_articles_filtrees, setListeArticlesFiltrees]=useState([])
     const [dialog_nouveau_article, setOpenDialogNouveauArticle] = useRecoilState(openDialogNouveauArticle);
+    console.log(dialog_nouveau_article)
     const [dialog_modifier_article, setOpenDialogModifierArticle] = useRecoilState(openDialogModifierArticle);
+    console.log(dialog_modifier_article)
+    const [dialog_supprimer_article, setOpenDialogSupprimerArticle] = useRecoilState(openDialogSupprimerArticle)
+    console.log(dialog_supprimer_article)
     const [props_art,setPropsArt]=useRecoilState(propsArticle)
 
     const loadStock=async()=>{
@@ -47,9 +52,8 @@ export const ListeArticlesPage=()=>{
         loadStock()
         getCategoriesArticles().then(response=>{
             let res={}
-            response.map(cat=>{
-                res={...res,[cat.ref_categorie]:null}
-            })
+            response.map(cat=>
+                res={...res,[cat.ref_categorie]:null})
             setListeCategoriesArticles(res)
         })
     },[])
@@ -98,6 +102,13 @@ export const ListeArticlesPage=()=>{
             setOpenDialogModifierArticle(true)
         }
     }
+    const onSupprimerClick=(e)=>{
+        let id=e.target.id
+        if(setArticle(id)){
+            console.log(props_art)
+            setOpenDialogSupprimerArticle(true)
+        }
+    }
     
     if(isLoad) {
         return(
@@ -111,7 +122,7 @@ export const ListeArticlesPage=()=>{
                     <SearchInputText style={{float:'left', width:200}} id="search_key" onChange={onSearchChange} placeholder="Rechercher" />
                 </Col>
                 <Col m={2}>
-    <Button flat style={{float:'right'}} small onClick={onNouveauArticleClick}><i class="mdi mdi-plus-box-outline"/> {'  '}Nouveau</Button>
+                    <Button flat style={{float:'right'}} small onClick={onNouveauArticleClick}><i className="mdi mdi-plus-box-outline"/> {'  '}Nouveau</Button>
                 </Col>
             </Row>
             <Row justify="space-between">
@@ -161,17 +172,18 @@ export const ListeArticlesPage=()=>{
                                                     className='bt-edit-item'
                                                     onClick={onModifierClick}
                                                     >
-                                                    <img id={art.ref_article} src={edit_16px}/>
+                                                    <img id={art.ref_article} alt="edit_16px" src={edit_16px}/>
                                                 </Button>
                                                 <Button 
                                                     small 
                                                     flat
                                                     floating
                                                     color={gray}
-                                                    id={'sup-'+art.ref_article}
+                                                    id={art.ref_article}
                                                     value={art.ref_article}
                                                     className='bt-delete-item'
-                                                    ><i className="mdi mdi-delete"/>
+                                                    onClick={onSupprimerClick}
+                                                    ><i id={art.ref_article} className="mdi mdi-delete"/>
                                                 </Button>
                                                 <Button 
                                                     id={art.ref_article}
@@ -182,7 +194,7 @@ export const ListeArticlesPage=()=>{
                                                     className='bt-buy-item'
                                                     onClick={onAchatClick}
                                                     >
-                                                        <img id={art.ref_article} src={buy_16px}/>
+                                                        <img id={art.ref_article} alt="buy_16px" src={buy_16px}/>
                                                 </Button>
                                             </div>
                                         </td>
@@ -206,6 +218,7 @@ export const ListeArticlesPage=()=>{
             </Row>
             <NouveauArticle/>
             <ModifierArticle/>
+            <SupprimerArticle/>
         </div>
     )
 }

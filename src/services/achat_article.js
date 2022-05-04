@@ -9,6 +9,10 @@ export const getAchatsArticles=()=>(axios.get('/achats-articles')
 
 export const getAchatsArticlesByIntervalleDate=async(data)=>{
     const response=axios.get('/achats-articles/by_intervalle_date',{params:{date:data}})
-    console.log(response)
+    return Promise.resolve(response)
+}
+
+export const deleteAchatsArticlesByArticle=async(data)=>{
+    const response=axios.delete('/achats-articles/article/'+data)
     return Promise.resolve(response)
 }

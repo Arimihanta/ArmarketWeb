@@ -14,6 +14,11 @@ export const postVenteArticle=async(data)=>{
     return Promise.resolve(response)
 }
 
+export const deleteVenteArticleByArticle=async(data)=>{
+    const response=axios.delete('/ventes-articles/article/'+data)
+    return Promise.resolve(response)
+}
+
 export const getVentesArticlesByIntervalleDate=async(data)=>{
     const response=axios.get('/ventes-articles/by_intervalle_date',{params:{date:data}})
     return Promise.resolve(response)

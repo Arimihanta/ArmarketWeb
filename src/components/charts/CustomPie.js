@@ -1,8 +1,15 @@
-import React, { useState } from "react"
-import { PieChart, Cell, Pie, Sector } from "recharts"
+import React,{useEffect,useState}from "react"
+import { PieChart, Cell, Pie, Sector,Legend } from "recharts"
 import { Row } from "react-materialize"
 
 const CustomPie = (props) => {
+    const [width,setWidth]=useState(window.innerWidth)
+    useEffect(() => {
+        function handleResize() {
+            setWidth(window.innerWidth)
+        }
+        window.addEventListener('resize', handleResize)
+    })
     const renderActiveShape = (props) => {
         const RADIAN = Math.PI / 180
         const {
@@ -86,12 +93,12 @@ const CustomPie = (props) => {
 
     return (
         <Row align="middle" justify="center" style={{ zIndex: 5000 }}>
-            <PieChart width={600} height={300}>
+            <PieChart width={(width/3)-80} height={(((width/2)-80)/2)}>
                 <Pie
                     activeIndex={activeIndex}
                     activeShape={renderActiveShape}
                     data={props.data}
-                    cx={300}
+                    cx={((width/3)/2)-80}
                     cy={130}
                     innerRadius={60}
                     outerRadius={80}
@@ -103,6 +110,7 @@ const CustomPie = (props) => {
                         <Cell key={`cell-${index}`} fill={props.colors[index % props.colors.length]} />
                     ))}
                 </Pie>
+                <Legend align="right" verticalAlign="bottom"/>
             </PieChart>
         </Row>
     )

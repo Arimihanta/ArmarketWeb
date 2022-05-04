@@ -50,6 +50,7 @@ export const getMoisCompletLettre=(mois)=>{
         case 10 : return 'Octobre'
         case 11 : return 'Novembre'
         case 12 : return 'Decembre'
+        default :return 'Janvier'
     }
 }
 export const getAbbrMoisLettre=(mois)=>{
@@ -66,5 +67,6 @@ export const getAbbrMoisLettre=(mois)=>{
         case 10 : return 'Oct.'
         case 11 : return 'Nov.'
         case 12 : return 'Dec.'
+        default : return 'Jan.'
     }
 }

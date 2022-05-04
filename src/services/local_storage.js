@@ -1,0 +1,1 @@
+export const nb_jour_avant_peremption=45

@@ -5,10 +5,8 @@ import { DatePicker } from "../components/DatePicker"
 import {LoadDataPage} from './LoadDataPage'
 import { format } from 'date-fns'
 import {getVentesArticlesGroupByDate} from '../services/vente'
-import { colors } from "../global/colors"
 import {DateTime} from './../global/date'
 import '../global/lib'
-const { primary, warning, gray } = colors
 export const VenteParJourPage=()=>{
     const [isLoad, setLoad]=useState(true)
     const [liste_ventes_articles, setListeVentesArticles]=useState([])
@@ -26,7 +24,6 @@ export const VenteParJourPage=()=>{
             console.log(dd.getDay())
             console.log(dd.getMonth())
             console.log(dd.getYear())
-            let df=new DateTime(date_fin)
             //console.log('comparer'+dd.compareTo(df))
         }
         
@@ -67,6 +64,7 @@ export const VenteParJourPage=()=>{
                                 label="Du"
                                 name="date_debut"
                                 id="date_debut"
+                                value={date_debut}
                                 onChange={(date)=>setDateDebut(format(date, 'dd/MM/yyyy'))}
                                 />
                         </Col>
@@ -75,13 +73,14 @@ export const VenteParJourPage=()=>{
                                 label="Au"
                                 name="date_fin"
                                 id="date_fin"
+                                value={date_fin}
                                 onChange={(date)=>setDateFin(format(date, 'dd/MM/yyyy'))}
                                 />
                         </Col>
                     </Row>
                 </Col>
                 <Col m={2} style={{padding:'0px'}}>
-                    <Button flat style={{float:'right', marginTop:10}} small onClick={onApplyClick}>APPLIQUER</Button>
+                    <Button flat style={{float:'right', marginTop:10}} small onClick={onApplyClick} className="success">APPLIQUER</Button>
                 </Col>
             </Row>
             <Row style={{

@@ -1,12 +1,18 @@
-import React from 'react';
+import React,{useEffect,useState} from 'react';
 import {LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,} from 'recharts';
 
 const CustomLine = (props) => {
-    
+    const [width,setWidth]=useState(window.innerWidth)
+    useEffect(() => {
+        function handleResize() {
+            setWidth(window.innerWidth)
+        }
+        window.addEventListener('resize', handleResize)
+    })
     return (
         <div>
             <LineChart
-                width={600}
+                width={(width/2)-80}
                 height={300}
                 
                 data={props.data}

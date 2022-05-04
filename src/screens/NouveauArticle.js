@@ -1,11 +1,11 @@
 import React,{useState, useEffect} from 'react'
-import {Modal, Row, Col, TextInput, Autocomplete, Icon } from 'react-materialize'
+import {Modal, Row, Col, TextInput, Autocomplete } from 'react-materialize'
 import { DatePicker } from "../components/DatePicker"
 import { Button } from "./../components/Button"
+import {InputGeneratorRef} from './../components/InputGeneratorRef'
 import { format } from 'date-fns'
 import {
-    useRecoilState,
-    useRecoilValue
+    useRecoilState
 } from 'recoil';
 import {
     getCategoriesArticles,
@@ -14,10 +14,12 @@ import {
     postSousCategoriesArticle, 
     getUnitesArticles,
     postUnitesArticle,
-    postArticle
+    postArticle,
+    generateReference,
+    getQRCode,
+    getFournisseurs
 } from './../services/article'
 import {
-    getAchat,
     postAchat
 } from './../services/achat'
 import {
@@ -26,7 +28,8 @@ import {
 import {
     postStock,
     putStockActuel,
-    getStockParReference
+    getStockParReference,
+    getStocks
 } from './../services/stock'
 import {openDialogNouveauArticle, 
     listeArticles,
@@ -38,7 +41,7 @@ import {openDialogNouveauArticle,
 import {isValidNumber, isValidText} from './../global/lib'
 import { colors } from "../global/colors"
 import './../global/lib'
-const { primary, warning } = colors
+const { warning } = colors
 export const NouveauArticle=(props)=>{
     const [dialog_nouveau_article, setOpenDialogNouveauArticle] = useRecoilState(openDialogNouveauArticle);
     const [props_article, setPropsArticle]=useRecoilState(propsArticle)
@@ -49,9 +52,11 @@ export const NouveauArticle=(props)=>{
     const [local_categorie, setLocalCategorie]=useState([])
     const [local_sous_categorie, setLocalSousCategorie]=useState([])
     const [local_unite, setLocalUnite]=useState([])
+    const [liste_fournisseurs, setListeFournisseurs]=useState({})
     /*
         Attributs article
     */
+    const [have_barcode,setHavingBarcode]=useState(true)
     const [date_achat, setDateAchat]=useState('')
     const [ref_article, setRefArticle]=useState('')
     const [designation, setDesignation]=useState('')
@@ -66,7 +71,13 @@ export const NouveauArticle=(props)=>{
     const [date_peremption, setDatePeremption]=useState('')
     const [contains_error,setContainsError]=useState(false)
 
-
+    const loadStock=async()=>{
+        let st=await getStocks()
+        if(st){
+            setListeArticles(st.data)
+        }
+        return Promise.resolve(true)
+    }
     useEffect(() => {
         getCategoriesArticles().then(response=>{
             setLocalCategorie(response)
@@ -92,6 +103,13 @@ export const NouveauArticle=(props)=>{
             })
             setListeUnitesArticles(res)
         })
+        getFournisseurs().then(response=>{
+            let res={}
+            response.map(f=>{
+                res={...res,[f.fournisseur]:null}
+            })
+            setListeFournisseurs(res)
+        })
     }, [])
 
     useEffect(()=>{
@@ -102,7 +120,6 @@ export const NouveauArticle=(props)=>{
         setRefSousCategorie(props_article.ref_sous_categorie||'')
         setRefUnite(props_article.ref_unite||'')
         setPrixVenteUnitaire(props_article.prix_vente_unitaire||0)
-        
     },[props_article])
     const onCloseClick=()=>{
         setOpenDialogNouveauArticle(false)
@@ -186,6 +203,7 @@ export const NouveauArticle=(props)=>{
         return true
     }
     const restaurerForm=()=>{
+        setHavingBarcode(true)
         setDateAchat('')
         setRefArticle('')
         setDesignation('')
@@ -212,17 +230,20 @@ export const NouveauArticle=(props)=>{
             //inserer categorie si !existe
             if(!(local_categorie.find(cat=>cat.ref_categorie.sansAccent().toUpperCase()===ref_categorie.sansAccent().toUpperCase()))){
                 const insertedCategorie=await postCategoriesArticle({ref_categorie:ref_categorie})
+                console.log(insertedCategorie)
             }
 
             //inserer sous-categorie si !existe
             if(!(local_sous_categorie.find(cat=>cat.ref_sous_categorie.sansAccent().toUpperCase()===ref_sous_categorie.sansAccent().toUpperCase()))){
                 const insertedSousCategorie=await postSousCategoriesArticle({ref_sous_categorie:ref_sous_categorie})
+                console.log(insertedSousCategorie)
             }
 
             //inserer unite si !existe
             if(!(local_unite.find(unit=>unit.ref_unite.sansAccent().toUpperCase()===ref_unite.sansAccent().toUpperCase()))){
                 
                 const insertedUnite=await postUnitesArticle({ref_unite:ref_unite})
+                console.log(insertedUnite)
             }
 
             //inserer article si !existe
@@ -235,7 +256,15 @@ export const NouveauArticle=(props)=>{
                     ref_unite:ref_unite,
                     prix_vente_unitaire:prix_vente_unitaire
                 }
+                if(!have_barcode) {
+                    const qrcode=await getQRCode(ref_article)
+                    article.qrcode=qrcode.data.qrcode||'have'
+                }
+                else{
+                    article.qrcode='undefined'
+                }
                 const insertedArticle=await postArticle(article)
+                console.log(insertedArticle)
                 let stock={
                     ref_article:ref_article,
                     stock_actuel:quantite,
@@ -243,13 +272,27 @@ export const NouveauArticle=(props)=>{
                     seuil_stock_min:5
                 }
                 var insertedStock=await postStock(stock)
+                console.log(insertedStock)
             }
             else{
                 //faire mise a jour
                 const stockGet=await getStockParReference(ref_article)
                 let stock=stockGet.data
-                stock.stock_actuel=parseFloat(stock.stock_actuel)+parseFloat(quantite)
-                var updatedStock=await putStockActuel(stock)
+                if(stock){
+                    stock.stock_actuel=parseFloat(stock.stock_actuel)+parseFloat(quantite)
+                    var updatedStock=await putStockActuel(stock)
+                    console.log(updatedStock)
+                }
+                else{
+                    let st={
+                        ref_article:ref_article,
+                        stock_actuel:quantite,
+                        date_peremption:date_peremption,
+                        seuil_stock_min:5
+                    }
+                    var insertedSt=await postStock(st)
+                    console.log(insertedSt)
+                }
             }
 
             //inserer achat
@@ -267,12 +310,24 @@ export const NouveauArticle=(props)=>{
             const insertedAchatArticle=await postAchatArticle(achat_article)
 
             if(insertedAchatArticle){
+                loadStock()
                 restaurerForm()
             }
         }
         else{
             setContainsError(true)
         }
+    }
+    const onGenerateReferenceClick=async()=>{
+        const ref_generee=await generateReference({ref_code:-1})
+        let result=ref_generee.data.toString()
+        while (result.length<6)
+        {
+            result = "0" + result;
+        }
+        setHavingBarcode(false)
+        setRefArticle('ART'+result)
+        console.log('barcode : '+have_barcode)
     }
     return(
         <Modal
@@ -318,14 +373,17 @@ export const NouveauArticle=(props)=>{
                             name="date_achat"
                             id="date_achat"
                             onChange={(date)=>setDateAchat(format(date, 'dd/MM/yyyy'))}
+                            autoComplete="off"
                             />
                     </Col>
                     <Col m={3}>
-                        <TextInput 
+                        <InputGeneratorRef 
                             label="Reference"
                             id="ref_article"
                             onChange={onRefArticleChange}
                             value={ref_article}
+                            autoComplete="off"
+                            onGenerateClick={onGenerateReferenceClick}
                             />
                     </Col>
                     <Col m={3}>
@@ -334,6 +392,7 @@ export const NouveauArticle=(props)=>{
                             id="designation"
                             onChange={onTextInputChange}
                             value={designation}
+                            autoComplete="off"
                             />
                     </Col>
                     <Col m={3}>
@@ -347,6 +406,7 @@ export const NouveauArticle=(props)=>{
                             }}
                             value={ref_categorie}
                             title="Categorie"
+                            autoComplete="off"
                             />
                     </Col>
                     <Col m={3}>
@@ -360,7 +420,7 @@ export const NouveauArticle=(props)=>{
                             }}
                             value={ref_sous_categorie}
                             title="Sous-Categorie"
-                            autocomplete={false}
+                            autoComplete="off"
                             />
                     </Col>
                     <Col m={3}>
@@ -371,6 +431,7 @@ export const NouveauArticle=(props)=>{
                             id="quantite"
                             onChange={onTextInputChange}
                             value={quantite}
+                            autoComplete="off"
                             />
                     </Col>
                     <Col m={3}>
@@ -384,6 +445,7 @@ export const NouveauArticle=(props)=>{
                             }}
                             title="Unite"
                             value={ref_unite}
+                            autoComplete="off"
                             />
                     </Col>
                     <Col m={3}>
@@ -402,6 +464,7 @@ export const NouveauArticle=(props)=>{
                             id="prix_achat"
                             onChange={onTextInputChange}
                             value={prix_achat}
+                            autoComplete="off"
                             />
                     </Col>
                     <Col m={3}>
@@ -412,6 +475,7 @@ export const NouveauArticle=(props)=>{
                             id="prix_achat_total"
                             onChange={onTextInputChange}
                             value={prix_achat_total}
+                            autoComplete="off"
                             />
                     </Col>
                     <Col m={3}>
@@ -422,18 +486,40 @@ export const NouveauArticle=(props)=>{
                             id="prix_vente_unitaire"
                             onChange={onTextInputChange}
                             value={prix_vente_unitaire}
+                            autoComplete="off"
                             />
                     </Col>
                     <Col m={3}>
-                        <TextInput 
-                            label="Fournisseur"
+                        <Autocomplete
+                            name="fournisseur"
                             id="fournisseur"
                             onChange={onTextInputChange}
+                            options={{
+                                data: liste_fournisseurs,
+                                onAutocomplete:(e)=>setFournisseur(e)
+                            }}
+                            title="Fournisseur"
                             value={fournisseur}
-                            />
+                            autoComplete="off"
+                        />
                     </Col>
                 </Row>
-                <span style={{visibility: contains_error?'visible':'hidden'}}>Erreur!</span>
+                <div className="container-message" style={{visibility:contains_error?'visible':'hidden'}}>
+                    <div
+                        style={{
+                            color:"#ff0000",
+                            float:'right'
+                        }}
+                        onClick={()=>setContainsError(false)}
+                        ><i style={{
+                            width:16,
+                            height:16,
+                        }} className="mdi mdi-close"/>
+                    </div>
+                    <div className="message">
+                        <span>Veuillez vérifier le champ</span>
+                    </div>
+                </div>
             </div>
         </Modal>
     )

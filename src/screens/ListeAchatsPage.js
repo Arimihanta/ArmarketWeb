@@ -6,9 +6,7 @@ import {getAchatsArticlesByIntervalleDate} from '../services/achat_article'
 import {getLettreDuChiffre} from '../services/conversion'
 import {LoadDataPage} from './LoadDataPage'
 import { format } from 'date-fns'
-import { colors } from "../global/colors"
 import '../global/lib'
-const { primary, warning, gray } = colors
 export const ListeAchatsPage=()=>{
     const [isLoad, setLoad]=useState(true)
     //list of articles from database
@@ -64,6 +62,7 @@ export const ListeAchatsPage=()=>{
                                 label="Du"
                                 name="date_debut"
                                 id="date_debut"
+                                value={date_debut}
                                 onChange={(date)=>setDateDebut(format(date, 'dd/MM/yyyy'))}
                                 />
                         </Col>
@@ -72,13 +71,14 @@ export const ListeAchatsPage=()=>{
                                 label="Au"
                                 name="date_fin"
                                 id="date_fin"
+                                value={date_fin}
                                 onChange={(date)=>setDateFin(format(date, 'dd/MM/yyyy'))}
                                 />
                         </Col>
                     </Row>
                 </Col>
                 <Col m={2} style={{padding:'0px'}}>
-                    <Button flat style={{float:'right', marginTop:10}} small onClick={onApplyClick}>APPLIQUER</Button>
+                    <Button flat style={{float:'right', marginTop:10}} small onClick={onApplyClick} className="success">APPLIQUER</Button>
                 </Col>
             </Row>
             <Row justify="space-between" style={{marginBottom:'0px'}}>

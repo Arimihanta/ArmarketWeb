@@ -1,13 +1,14 @@
 import React,{useEffect, useState} from 'react'
 import {Row, Col, CardPanel} from 'react-materialize'
+import { PDFDownloadLink } from '@react-pdf/renderer'
 import { Button } from "./../components/Button"
 import {SearchInputText} from "../components/SearchInputText"
+import logo_shop_mihaja from './../components/img/logo_shop_mihaja.png'
 import delete_row_16px from './../components/img/delete_row_16px.png'
-import { PDFDownloadLink } from '@react-pdf/renderer'
-import {getArticles, getBarCode} from '../services/article'
-import {PDFDocBarCode} from './../components/PDFDocBarCode'
+import {getArticles} from '../services/article'
 import {LoadDataPage} from './LoadDataPage'
-export const QRCodeArticlePage=()=>{
+import {PDFDocPrice} from './../components/PDFDocPrice'
+export const PriceArticlePage=()=>{
     const [isLoad, setLoad]=useState(true)
     //list of articles from database
     const [liste_articles, setListeArticles]=useState([])
@@ -15,29 +16,20 @@ export const QRCodeArticlePage=()=>{
     const [liste_articles_filtrees, setListeArticlesFiltrees]=useState([])
     const [liste_articles_selectionnes, setListeArticlesSelectionnes]=useState([])
     const [search_key,setSearchKey]=useState('')
-
     const loadArticle=async()=>{
         let st=await getArticles()
         if(st.data){
-            st=st.data.filter(art=>art.qrcode!=='undefined' && art.qrcode!==undefined && art.qrcode!=='')
-            const newList = st.map(async(item) => {
-                const barcode= await getBarCode(st.ref_article)
+            const newList = st.data.map(item => {
                 const updatedItem = {
                     ...item,
-                    barcode: barcode.data.barcode,
                     checked: false,
                 };
                 //console.log(updatedItem)
                 return updatedItem;
             });
-            if(newList.length>0){
-                Promise.all(newList).then(res=>{
-                    setListeArticles(res)
-                    setListeArticlesFiltrees(res)
-                    setLoad(false)
-                })
-            }
-            
+            setListeArticles(newList)
+            setListeArticlesFiltrees(newList)
+            setLoad(false)
         }
         return Promise.resolve(true)
     }
@@ -51,6 +43,7 @@ export const QRCodeArticlePage=()=>{
         )
         setSearchKey(e.target.value)
     }
+
     const onCheckOrUncheck=(e)=>{
         const newList = liste_articles.map(item => {
             if (item.ref_article === e.target.id) {
@@ -112,56 +105,49 @@ export const QRCodeArticlePage=()=>{
                     style={{
                         overflowY:'auto',
                         marginBottom:'0px',
-                        maxHeight: 'calc(100vh - 230px )'
+                        height: 'calc(100vh - 230px )'
                     }}>
                     {
                         liste_articles_filtrees.map((article,key)=>
                             <Col m={6} key={key}>
                                 <CardPanel className="card-price">
                                     <Row justify="center" style={{marginBottom:0}}>
-                                        <Col s={12} style={{
-                                            textAlign:'center'
-                                        }}><span>{article.ref_article}</span></Col>
-                                        <Col s={12} style={{
-                                            textAlign:'center'
-                                        }}><span className="single-line">{article.designation}</span></Col>
-                                        <Col s={11}  style={{
-                                            textAlign:'center',
-                                            fontSize:18,
-                                            fontWeight:700
-                                        }}>
-                                            <Row className='no-margin'>
-                                                <Col>
-                                                    <img alt={article.ref_article} style={{
-                                                        width:'80px'
-                                                    }} src={"data:image/png;base64,"+article.qrcode}/>
+                                        <Col s={3}>
+                                            <img alt='logo' src={logo_shop_mihaja}></img>
+                                        </Col>
+                                        <Col s={9}>
+                                            <Row className="no-margin no-padding">
+                                                <Col className="no-margin no-padding" m={12}>
+                                                    <span className="single-line price-art">{article.designation}</span>
                                                 </Col>
-                                                <Col>
-                                                    <img alt={article.ref_article} style={{
-                                                        width:'100%'
-                                                    }} src={"data:image/png;base64,"+article.barcode}/>
+                                                <Col className="no-margin no-padding" m={12}>
+                                                    <Row className="no-margin no-padding" m={12}>
+                                                        <Col m={9} className="no-padding no-margin"><span className="price-art price-value">{article.prix_vente_unitaire}{' '}Ar</span></Col>
+                                                        <Col m={3} className="no-padding no-margin">
+                                                            <Button
+                                                                flat
+                                                                small
+                                                                style={{
+                                                                    display:'block',
+                                                                    float:'right'
+                                                                }}
+                                                                id={article.ref_article}
+                                                                onClick={onCheckOrUncheck}
+                                                                tooltip={article.checked?"Déselectionner":"Selectionner"}
+                                                                >
+                                                                    <i id={article.ref_article} className={article.checked?"mdi mdi-checkbox-marked-outline":"mdi mdi-checkbox-blank-outline"}></i>
+                                                            </Button>
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
                                             </Row>
                                         </Col>
-                                        <Col m={1}>
-                                            <Button
-                                                flat
-                                                small
-                                                style={{
-                                                    display:'block',
-                                                    float:'right'
-                                                }}
-                                                id={article.ref_article}
-                                                onClick={onCheckOrUncheck}
-                                                tooltip={article.checked?"Déselectionner":"Selectionner"}
-                                                >
-                                                    <i id={article.ref_article} className={article.checked?"mdi mdi-checkbox-marked-outline":"mdi mdi-checkbox-blank-outline"}></i>
-                                            </Button>
-                                        </Col>
+                                        
                                     </Row>
                                 </CardPanel>
                             </Col>
                             )
+                    
                     }
                     </Row>
                     <Row className="no-padding no-margin">
@@ -209,7 +195,7 @@ export const QRCodeArticlePage=()=>{
                                                 id={article.ref_article}
                                                 onClick={onCheckOrUncheck}
                                                 >
-                                                    <img alt="delete_row_16px" id={article.ref_article} src={delete_row_16px}/>
+                                                    <img id={article.ref_article} alt="delete_row_16px" src={delete_row_16px}/>
                                             </Button>
                                         </Col>
                                     </Row>
@@ -221,8 +207,8 @@ export const QRCodeArticlePage=()=>{
                     <Row className="no-margin no-padding">
                         <Col m={12} className="no-padding no-margin save-as-pdf">
                             {<PDFDownloadLink
-                                document={<PDFDocBarCode data={liste_articles_selectionnes} />}
-                                fileName={'barcode-'+(new Date()).toLocaleDateString()+'-'+(new Date()).toLocaleTimeString()+'.pdf'}
+                                document={<PDFDocPrice data={liste_articles_selectionnes} />}
+                                fileName={'price-'+(new Date()).toLocaleDateString()+'-'+(new Date()).toLocaleTimeString()+'.pdf'}
                                 style={{
                                 textDecoration: "none",
                                 padding: "10px",

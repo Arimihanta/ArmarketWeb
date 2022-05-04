@@ -1,21 +1,16 @@
 import React,{useState, useEffect} from 'react'
-import {Row, Col,Table,Checkbox, TextInput, Icon} from 'react-materialize'
-import { Button } from "../components/Button"
+import {Row, Col,Table,Select} from 'react-materialize'
 import {SearchInputText} from "../components/SearchInputText"
 import {getCategoriesArticles} from '../services/article'
 import {getStocks} from '../services/stock'
 import {LoadDataPage} from './LoadDataPage'
 import {NouveauArticle} from './NouveauArticle'
-import {ModifierArticle} from './ModifierArticle'
 import {
     listeCategoriesArticles} from '../global/atom'
 import {
-    useRecoilState,
-    useRecoilValue,
+    useRecoilState
 } from 'recoil';
-import { colors } from "../global/colors"
 import '../global/lib'
-const { primary, warning, gray } = colors
 export const StocksPage=()=>{
     const [isLoad, setLoad]=useState(true)
     //list of articles from database
@@ -23,11 +18,13 @@ export const StocksPage=()=>{
     //list of articles filtered
     const [liste_articles_filtrees, setListeArticlesFiltrees]=useState([])
     const [liste_categories_articles, setListeCategoriesArticles]=useRecoilState(listeCategoriesArticles)
-
+    const [search_key, setSearchKey]=useState('')
+    const [selected_filter_item, setSelectedFilterItem]=useState(1)
 
     const loadStock=async()=>{
         let st=await getStocks()
         if(st){
+            console.log(st.data[0].date_avant_peremption.years)
             setListeArticles(st.data)
             setListeArticlesFiltrees(st.data)
             setLoad(false)
@@ -46,16 +43,39 @@ export const StocksPage=()=>{
             })
         }
     },[])
-    const onSearchChange  =(e)=>{
-        setListeArticlesFiltrees(
-            liste_articles.filter(art=>art.designation.sansAccent().toUpperCase().includes(e.target.value.sansAccent().toUpperCase()))
-        )
+
+    const filterDisplay=(index,search)=>{
+        console.log(index)
+        switch(parseInt(index)){
+            
+            case 1:
+                setListeArticlesFiltrees(liste_articles.filter(art=>art.designation.sansAccent().toUpperCase().includes(search.sansAccent().toUpperCase())))
+                return
+            case 2:
+                setListeArticlesFiltrees(liste_articles.filter(art=>art.designation.sansAccent().toUpperCase().includes(search.sansAccent().toUpperCase()) &&
+                                            art.stock_actuel<=art.seuil_stock_min))
+                return
+            case 3:
+                setListeArticlesFiltrees(liste_articles.filter(art=>art.designation.sansAccent().toUpperCase().includes(search.sansAccent().toUpperCase()) &&
+                                            (art.date_avant_peremption.months<2 || !art.date_avant_peremption.months) && !art.date_avant_peremption.years))
+                return
+        }
+    }
+    const onSearchChange=(e)=>{
+        filterDisplay(selected_filter_item,e.target.value)
+        setSearchKey(e.target.value)
     }
 
     const setClassName=(stock_actuel, marge_min)=>{
         if(stock_actuel<=marge_min) return 'stock-epuise'
         return ''
     }
+
+    const onFilterChange=(e)=>{
+        filterDisplay(e.target.value,search_key)
+        setSelectedFilterItem(parseInt(e.target.value))
+    }
+
     if(isLoad) {
         return(
             <LoadDataPage/>
@@ -65,10 +85,22 @@ export const StocksPage=()=>{
         <div style={{ paddingLeft: 20, paddingRight: 20}}>
             <Row justify="center" style={{marginBottom:'0px', marginTop:10}}>
                 <Col m={9}>
-                    d
+                    <Row className="no-margin no-padding">
+                        <Col className="no-margin no-padding slect-stock">
+                            <Select
+                                type='select' 
+                                defaultValue={1}
+                                onChange={onFilterChange}
+                            >
+                                <option value={1}>Tous les produits</option>
+                                <option value={2}>Stock épuisés</option>
+                                <option value={3}>Produits proches d'une date de péremption</option>
+                            </Select>
+                        </Col>
+                    </Row>
                 </Col>
                 <Col m={3}>
-                    <SearchInputText style={{float:'right'}} id="search_key" onChange={onSearchChange} placeholder="Rechercher" />
+                    <SearchInputText style={{float:'right'}} id="search_key" onChange={onSearchChange} value={search_key} placeholder="Rechercher" />
                 </Col>
             </Row>
             <Row justify="space-between">

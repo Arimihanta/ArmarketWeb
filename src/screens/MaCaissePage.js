@@ -1,16 +1,17 @@
 import React,{useState, useEffect} from 'react'
 import 'materialize-css'
-import {Row, Col,Table,CardPanel, TextInput, Icon, Autocomplete, Button as MButton} from 'react-materialize'
+import {Row, Col,Table,CardPanel, TextInput, Button as MButton} from 'react-materialize'
 import { Button } from "./../components/Button"
 import {SearchInputText} from "./../components/SearchInputText"
+import add_shopping_cart_16px from './../components/img/add_shopping_cart_16px.png'
+import logo_shop_mihaja from './../components/img/logo_shop_mihaja.jpeg'
 import {getStocks,getStockParReference,putStockActuel} from './../services/stock'
 import {postVente,postFacture,postVenteArticle} from './../services/vente'
 import {putTicket} from './../services/ticket'
 import {LoadDataPage} from './LoadDataPage'
-import { colors } from "../global/colors"
 import delete_row_16px from './../components/img/delete_row_16px.png'
+import {getUtilisateur} from './../services/session'
 import './../global/lib'
-const { primary } = colors
 export const MaCaissePage=()=>{
     const [isLoad, setLoad]=useState(true)
     const [stocks_articles, setStocksArticles]=useState([])
@@ -62,7 +63,6 @@ export const MaCaissePage=()=>{
                         ...item,
                         quantite: item.quantite+1,
                       };
-               
                       return updatedItem;
                     }
                
@@ -113,8 +113,17 @@ export const MaCaissePage=()=>{
             else setValCalc(val_calc+''+e.target.value)
         }
     }
+    const onBackSpaceClick=()=>{
+        if(val_calc.length>0){
+            setValCalc(val_calc.substring(0,val_calc.length-1))
+        }
+    }
     const onValCalcChange=(e)=>{
         setValCalc(e.target.value)
+    }
+
+    const onAddArticle=(e)=>{
+        addArticleOnList(e.target.id)
     }
 
     const onValidClick=()=>{
@@ -140,7 +149,7 @@ export const MaCaissePage=()=>{
             ventes.forEach(async(v)=>{
                 v.ref_vente=insertedVente.data
                 v.ref_facture=insertedFacture.data
-                v.caissier="Arimihanta Havana"
+                v.caissier=getUtilisateur().nom
                 v.prix_vente=v.prix_vente_unitaire
                 v.date_vente=date.toLocaleDateString()
                 await postVenteArticle(v)
@@ -179,22 +188,54 @@ export const MaCaissePage=()=>{
         <div style={{ paddingLeft: 20, paddingRight: 20}}>
             <Row justify="space-between" style={{marginBottom:'0px' }}>
                 <Col m={2}>
-                    <Row  className="search-row no-margin no-padding">
+                    <Row  className="search-row">
                         <Col m={12} className="no-margin no-padding" m={12}>
-                            {
+                            
                             <SearchInputText
                                 placeholder='rechercher' 
                                 id='s-filtrer-article'
                             onChange={onSearchChange}><i className="fa fa-search"></i></SearchInputText>
-                            }
+                            
 
                         </Col>
-                        <Col m={12} className="no-margin no-padding">
-                            <div className="liste-article">
+                        <Col m={12} 
+                            className="no-margin no-padding"
+                            >
+                            <div 
+                            className="liste-article"
+                                style={{marginTop:'10px'}}
+                            >
                                 {
                                     stocks_articles_filtres.map((st, key)=>
-                                        <CardPanel key={key}>
-                                            <span>{st.designation}</span>
+                                        <CardPanel
+                                            key={key}
+                                            style={{
+                                                padding:5
+                                            }}
+                                            className="card-art-caisse"
+                                        >
+                                            <Row className="no-padding no-margin">
+                                                <Col m={12}>
+                                                    <span className='nm-art'>{st.designation}</span>
+                                                </Col>
+                                                <Col m={12}>
+                                                    <span className='pr-art'>{st.prix_vente_unitaire}{' '}Ar</span>
+                                                </Col>
+                                                <Col m={12} className="no-padding no-margin">
+                                                    <Button
+                                                        flat
+                                                        small
+                                                        style={{
+                                                            display:'block',
+                                                            float:'right'
+                                                        }}
+                                                        
+                                                        id={st.ref_article}
+                                                        onClick={onAddArticle}
+                                                        ><img id={st.ref_article} alt={st.ref_article} src={add_shopping_cart_16px}/>
+                                                    </Button>
+                                                </Col>
+                                            </Row>
                                         </CardPanel>
                                     )
                                 }
@@ -281,7 +322,7 @@ export const MaCaissePage=()=>{
                                                 }}
                                                 flat
                                                 onClick={onRemoveVenteRow}
-                                                ><img id={art.ref_article} src={delete_row_16px}/></MButton></td>
+                                                ><img id={art.ref_article} alt="delete_row_16px" src={delete_row_16px}/></MButton></td>
                                     </tr>)
                                 }
                             </tbody>
@@ -310,6 +351,7 @@ export const MaCaissePage=()=>{
                     <Row
                         className='logo-shop'
                     >
+                        <img alt="logo_shop_mihaja" src={logo_shop_mihaja}></img>
                     </Row>
                     <Row style={{marginBottom:'0px'}}>
                         <Col m={4} className="cont-calc-num"> <Button className="b-calc-num" onClick={onChiffreCalcClick} value={7}>7</Button></Col>
@@ -321,7 +363,7 @@ export const MaCaissePage=()=>{
                         <Col m={4} className="cont-calc-num"> <Button className="b-calc-num" onClick={onChiffreCalcClick} value={1}>1</Button></Col>
                         <Col m={4} className="cont-calc-num"> <Button className="b-calc-num" onClick={onChiffreCalcClick} value={2}>2</Button></Col>
                         <Col m={4} className="cont-calc-num"> <Button className="b-calc-num" onClick={onChiffreCalcClick} value={3}>3</Button></Col>
-                        <Col m={4} className="cont-calc-num"> <Button className="b-calc-num">7</Button></Col>
+                        <Col m={4} className="cont-calc-num"> <Button className="b-calc-num" onClick={onBackSpaceClick}><i className="mdi mdi-backspace"></i></Button></Col>
                         <Col m={4} className="cont-calc-num"> <Button className="b-calc-num" onClick={onChiffreCalcClick} value={0}>0</Button></Col>
                         <Col m={4} className="cont-calc-num"> <Button className="b-calc-num" onClick={onChiffreCalcClick} value=','>,</Button></Col>
                     </Row>
@@ -332,11 +374,11 @@ export const MaCaissePage=()=>{
 
                 </Col>
                 <Col m={7}>
-                    <Button style={{float:'right', height:'42px', margin:'2px'}} id="button-payer" onClick={onPayClick} value={ventes}><Icon left>payment</Icon>PAYER</Button>
+                    <Button style={{float:'right', height:'42px', margin:'2px'}} id="button-payer" onClick={onPayClick} value={ventes}><i className="mdi mdi-cash"></i>PAYER</Button>
                 </Col>
                 <Col m={3} style={{paddingRight:20}}>
                     <Row>
-                        <Col m={8} className="cont-calc-num"> <Button className="b-calc-num b-valid-op" onClick={onValidClick}>VALIDER</Button></Col>
+                        <Col m={8} className="cont-calc-num"> <Button className="b-calc-num b-valid-op" onClick={onValidClick}><i className="mdi mdi-check"></i></Button></Col>
                         <Col m={4} className="cont-calc-num"> <Button className="b-calc-num b-cancel-op" onClick={onCancelClick}>ANNULER</Button></Col>
                     </Row>
                 </Col>

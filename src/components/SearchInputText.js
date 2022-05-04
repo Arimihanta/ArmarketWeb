@@ -1,5 +1,5 @@
 import React from 'react' ;
-import {Row, Col, TextInput} from 'react-materialize'
+import {Row, Col} from 'react-materialize'
 export const SearchInputText =(props)=>{
     const {placeholder, onChange, id, name, value, style } = props
 

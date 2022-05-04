@@ -1,9 +1,5 @@
 import {
-    RecoilRoot,
-    atom,
-    selector,
-    useRecoilState,
-    useRecoilValue,
+    atom
 } from 'recoil';
 
 export const openDialogNouveauArticle = atom({
@@ -12,6 +8,33 @@ export const openDialogNouveauArticle = atom({
 });
 export const openDialogModifierArticle = atom({
     key: 'dialogModifierArticleOpen',
+    default: false,
+});
+export const openDialogSupprimerArticle = atom({
+    key: 'dialogSupprimerArticleOpen',
+    default: false,
+});
+
+export const openMessageBox = atom({
+    key: 'dialogMessageBoxOpen',
+    default: false,
+});
+
+export const openModalLogin = atom({
+    key: 'modalLoginOpen',
+    default: false,
+});
+export const openModalSignin = atom({
+    key: 'modalSigninOpen',
+    default: false,
+});
+export const openModalLogout = atom({
+    key: 'modalLogoutOpen',
+    default: false,
+});
+
+export const openModalAbout = atom({
+    key: 'dialogAboutOpen',
     default: false,
 });
 export const listeArticles = atom({

@@ -74,7 +74,7 @@ export const isValidNumber = (val) => {
     return false
 }
 export const isValidText = (val) => {
-    let  patern = "^[a-zA-Z0-9-_/:., ]*$"
+    let  patern = "^[a-zA-Z0-9-_., &']*$"
     if(val.sansAccent().match(patern) != null) {
         if(val.sansAccent() !== ''){
             return true 

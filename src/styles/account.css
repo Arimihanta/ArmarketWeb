@@ -1,0 +1,99 @@
+.modal-login{
+    padding:0px !important ;
+    width:450px ;
+    height:260px!important;
+}
+.modal-signin{
+    padding:0px !important ;
+    width:450px ;
+    height:300px!important;
+}
+.modal-login .modal-content h4,.modal-signin .modal-content h4{
+    margin-left:30px !important ;
+    margin-top:20px !important ;
+    color: #5599dd !important;
+}
+.modal-login .modal-content,.modal-signin .modal-content{
+    padding:0px !important ;
+    position: absolute;
+    top:0px !important ;
+    overflow: hidden!important;
+}
+
+
+
+.container-account{
+    background: #2e2d2d2a;
+    height:100vh !important;
+    z-index: 1000;
+}
+.main-account{
+    margin: auto;
+    background: #eaeaea;
+    display:flex ;
+    justify-content: center;
+    padding:20px ;
+}
+.container-avatar{
+    height:150px ;
+}
+.logo_account{
+    width:150px ;
+    height:150px ;
+    border-radius:100% ;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.username{
+    font-size: 42px ;
+    text-align:center ;
+}
+.container-password-login-input{
+    display:inline-block !important ;
+    border: 1px solid #5599dd !important;
+    height:35px !important ;
+    color: #5599dd !important;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+.container-password-login-input .input-field.col{
+    margin:0px !important ;
+    padding: 0px !important ;
+    border:none !important ;
+    width:85% !important ;
+}
+.container-password-login-input button{
+    width:15% !important ;
+    height:33px !important ;
+    padding: 0 7px !important;
+}
+.container-password-login-input button:hover{
+    background:#EAEAEA !important;
+}
+.container-password-login-input .input-field.col input{
+    width:100% ;
+    border:none !important ;
+}
+.container-password-login-input .input-field.col input:focus{
+    border:none !important
+}
+.d-choose-user{
+    margin:20px ;
+}
+.dropdown-content li{
+    max-height:38px !important ;
+
+}
+.dropdown-content li a{
+    padding:1px !important ;
+}
+.dropdown-content button{
+    width : 100% !important ;
+}
+.message-error{
+    margin-left:30px ;
+    color:#9b0202
+}

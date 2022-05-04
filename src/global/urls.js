@@ -1,6 +1,3 @@
-const url =require('url');
-const path = require('path');
-
 export const startUrl = window.location.pathname+'#/'
 //export const articlesUrl = `file://${path.join(__dirname, "../build/index.html#/articles")}`
 export const caisseUrl=window.location.pathname+'#/ma-caisse'

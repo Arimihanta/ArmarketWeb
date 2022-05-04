@@ -5,10 +5,9 @@ import { DatePicker } from "../components/DatePicker"
 import {getVentesArticlesByIntervalleDate} from '../services/vente'
 import {getLettreDuChiffre} from '../services/conversion'
 import {LoadDataPage} from './LoadDataPage'
+import {ExportExcelFile} from '../components/ExportExcelFile'
 import { format } from 'date-fns'
-import { colors } from "../global/colors"
 import '../global/lib'
-const { primary, warning, gray } = colors
 export const ListeVentesPage=()=>{
     const [isLoad, setLoad]=useState(true)
     //list of articles from database
@@ -30,7 +29,7 @@ export const ListeVentesPage=()=>{
             insertedValues.data.forEach(item=>{
                 t+=item.montant
             })
-            
+            console.log(insertedValues.data)
             setListeVentesArticles(insertedValues.data)
             setLoad(false)
         }
@@ -58,13 +57,14 @@ export const ListeVentesPage=()=>{
     return(
         <div style={{ paddingLeft: 20, paddingRight: 20}}>
             <Row justify="center" style={{marginBottom:'0px'}}>
-                <Col m={10}>
+                <Col m={8}>
                     <Row style={{marginBottom:'0px'}}>
                         <Col style={{ paddingLeft: 0}}>
                             <DatePicker 
                                 label="Du"
                                 name="date_debut"
                                 id="date_debut"
+                                value={date_debut}
                                 onChange={(date)=>setDateDebut(format(date, 'dd/MM/yyyy'))}
                                 />
                         </Col>
@@ -73,13 +73,16 @@ export const ListeVentesPage=()=>{
                                 label="Au"
                                 name="date_fin"
                                 id="date_fin"
+                                value={date_fin}
                                 onChange={(date)=>setDateFin(format(date, 'dd/MM/yyyy'))}
                                 />
                         </Col>
                     </Row>
                 </Col>
-                <Col m={2} style={{padding:'0px'}}>
-                    <Button flat style={{float:'right', marginTop:10}} small onClick={onApplyClick}>APPLIQUER</Button>
+                <Col m={4} style={{padding:'0px'}}>
+                    <div style={{float:'right', marginTop:10}}>
+                        <ExportExcelFile data={liste_ventes_articles} date_debut={date_debut} date_fin={date_fin}/>{' '}<Button flat small onClick={onApplyClick} className="success">APPLIQUER</Button>
+                    </div>
                 </Col>
             </Row>
             <Row justify="space-between" style={{marginBottom:'0px'}}>

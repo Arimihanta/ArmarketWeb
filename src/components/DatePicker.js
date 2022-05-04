@@ -1,10 +1,8 @@
 import { DatePicker as MaterialDatePicker } from "react-materialize"
-import { colors } from "../global/colors"
 
-const { primary } = colors
 
 export const DatePicker = (props) => {
-    const { label, size, onClick, onChange, id, name,value } = props
+    const { label, onClick, onChange, id, name,value } = props
 
     return (
         <MaterialDatePicker
